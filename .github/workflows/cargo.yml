@@ -38,6 +38,7 @@ jobs:
     - name: Building recovery
       run: |
         cargo build --release 
+        cargo build --target aarch64-unknown-linux-gnu --release
         
     - name: Upload to Release
       uses: softprops/action-gh-release@v2
