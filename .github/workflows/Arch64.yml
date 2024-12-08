@@ -1,0 +1,51 @@
+name: Cargo Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      BRANCH:
+        description: 'BRANCH'
+        required: false
+        default: 'main'
+      URL:
+        description: 'URL'
+        required: false
+        default: 'https://github.com/Adiix64/Junk_1.git'
+
+jobs:
+  build:
+    if: github.event.repository.owner.id == github.event.sender.id
+    runs-on: ubuntu-latest-aarch64
+    permissions:
+      contents: write
+    steps:
+
+    # You might want to Checkout your repo first, but not mandatory
+    - name: Check Out
+      uses: actions/checkout@v4
+
+    - name: Prepare the environment
+      run: |
+        sudo apt update
+        sudo apt -y upgrade
+        sudo apt -y install rustc
+
+ #   - name: Clone
+  #    run: |
+        #git clone ${{ github.event.inputs.URL }} -b ${{ github.event.inputs.BRANCH }} ./build
+        #cd $PWD/build 
+
+    - name: Building recovery
+      run: |
+        cargo build --release 
+        ls -al workspace/out/target/product/Junk/target/release/
+
+    - name: Upload to Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: | 
+          workspace/out/target/product/Junk/target/release/Junk
+        name: ${{ github.event.inputs.DEVICE_NAME }}-${{ github.run_id }}
+        tag_name: ${{ github.run_id }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
