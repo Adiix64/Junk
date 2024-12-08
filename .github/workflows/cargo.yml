@@ -38,14 +38,14 @@ jobs:
     - name: Building recovery
       run: |
         cargo build --release 
+        mv $PWD/target/release/Junk /output
         
     - name: Upload to Release
       uses: softprops/action-gh-release@v2
       with:
         files: | 
-         /home/runner/work/Junk/*Junk*
-         /target/release/*Junk*
-        name: ${{ github.event.inputs.DEVICE_NAME }}-${{ github.run_id }}
-        tag_name: ${{ github.run_id }}
+         output
+         $PWD/output
+        name: ${{ github.run_id }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
