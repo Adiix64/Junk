@@ -50,5 +50,6 @@ jobs:
         files: | 
          ${{ steps.pwd.outputs.target-folder }}/release/Junk
         name: ${{ github.run_id }}
+        tag_name: ${{ github.run_id }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
