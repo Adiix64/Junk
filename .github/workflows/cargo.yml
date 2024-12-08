@@ -40,14 +40,16 @@ jobs:
         cargo build --release 
         cargo build --target aarch64-unknown-linux-gnu --release
 
-        mv 
-        
+    - name: List target/release directory
+      run: ls -al target/release || echo "target/release directory not found"
+      continue-on-error: true
+       
     - name: Upload to Release
       uses: softprops/action-gh-release@v2
       with:
         files: | 
-         wip
-         my_project/target/aarch64-unknown-linux-gnu/release/my_project
+         /target/release/Junk
+         /target/aarch64-unknown-linux-gnu/release/Junk
          
         name: ${{ github.run_id }}
         tag_name: ${{ github.run_id }}
