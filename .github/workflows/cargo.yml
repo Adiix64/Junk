@@ -43,13 +43,23 @@ jobs:
     - name: List target/release directory
       run: ls -al target/release || echo "target/release directory not found"
       continue-on-error: true
+
+
+    - name: Find last 2 built binaries
+      run: |
+        cd target/release
+        latest_binaries=$(ls -t | head -n 2)
+        echo "Last 2 built binaries: $latest_binaries"
+        ls -al target/release
+        echo "LATEST_BINARIES=$latest_binaries" >> $GITHUB_ENV
+        continue-on-error: true
+
        
     - name: Upload to Release
       uses: softprops/action-gh-release@v2
       with:
         files: | 
-         /target/release/Junk
-         /target/aarch64-unknown-linux-gnu/release/Junk
+         target/release/${{ env.LATEST_BINARIES }}
          
         name: ${{ github.run_id }}
         tag_name: ${{ github.run_id }}
