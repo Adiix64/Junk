@@ -1,4 +1,4 @@
-name: Cargo Build
+name: arch64 Build
 
 on:
   workflow_dispatch:
