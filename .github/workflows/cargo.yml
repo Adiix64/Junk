@@ -3,9 +3,6 @@ name: build and release
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   build:
     name: ${{ matrix.platform.os_name }} with rust ${{ matrix.toolchain }}
@@ -26,6 +23,10 @@ jobs:
           - stable
     steps:
       - uses: actions/checkout@v3
+      - name: Install OpenSSL development libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev pkg-config
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
@@ -34,8 +35,6 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           args: "--locked --release"
           strip: true
-      - name: Install shasum
-        run: sudo apt-get install -y perl
       - name: Generate SHA-256
         run: shasum -a 256 target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }} | cut -d ' ' -f 1 > target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}.sha256
       - name: Release binary and SHA-256 checksum to GitHub
