@@ -20,11 +20,6 @@ jobs:
       contents: write
     steps:
 
-    - name: Initialize workspace
-      run: |
-        echo "target-folder=$(pwd)" >> $GITHUB_OUTPUT
-      id: pwd
-
     # You might want to Checkout your repo first, but not mandatory
     - name: Check Out
       uses: actions/checkout@v4
@@ -33,7 +28,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt -y upgrade
-        sudo apt -y install rustc
+        sudo apt -y install rustc gcc-aarch64-linux-gnu
         
  #   - name: Clone
   #    run: |
@@ -48,7 +43,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: | 
-         ${{ steps.pwd.outputs.target-folder }}/release/Junk
+         wip
         name: ${{ github.run_id }}
         tag_name: ${{ github.run_id }}
       env:
