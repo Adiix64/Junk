@@ -43,7 +43,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: | 
-          target/release/Junk
+         /home/runner/work/Junk/Junk
         name: ${{ github.event.inputs.DEVICE_NAME }}-${{ github.run_id }}
         tag_name: ${{ github.run_id }}
       env:
