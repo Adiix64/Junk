@@ -11,6 +11,9 @@ mod screen;
 mod screenshot;
 mod video;
 
+// Define authorized user IDs
+const AUTHORIZED_USER_IDS: &[i64] = &[7660492768]; // Your user ID
+
 #[tokio::main]
 async fn main() {
     let bot = Bot::from_env(); // Load bot token from environment variable
@@ -19,6 +22,12 @@ async fn main() {
 
 // Parse and execute commands
 async fn handle_message(bot: Bot, message: Message) -> ResponseResult<()> {
+    // Check if the message is from an authorized user
+    if !AUTHORIZED_USER_IDS.contains(&message.from.id) {
+        bot.send_message(message.chat.id, "You are not authorized to use this bot.").await?;
+        return Ok(());
+    }
+
     if let Some(text) = message.text() {
         let args: Vec<&str> = text.split_whitespace().collect();
 
