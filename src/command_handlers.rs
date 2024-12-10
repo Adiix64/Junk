@@ -2,7 +2,14 @@ use teloxide::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
 use std::time::SystemTime;
-use crate::{audio, camera, execution, screen, screenshot, video};
+
+pub mod audio;
+pub mod camera;
+pub mod execution:
+pub mod screen;
+pub mod screenshot;
+pub mod video;
+
 
 static OWNER_ID: i64 = 7660492768;
 
