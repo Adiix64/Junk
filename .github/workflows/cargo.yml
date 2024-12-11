@@ -2,15 +2,6 @@ name: Cargo Build
 
 on:
   workflow_dispatch:
-    inputs:
-      BRANCH:
-        description: 'BRANCH'
-        required: false
-        default: 'main'
-      URL:
-        description: 'URL'
-        required: false
-        default: 'https://github.com/Adiix64/Junk_1.git'
 
 jobs:
   build:
@@ -28,12 +19,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt -y upgrade
-        sudo apt -y install rustc gcc-aarch64-linux-gnu
-        
- #   - name: Clone
-  #    run: |
-        #git clone ${{ github.event.inputs.URL }} -b ${{ github.event.inputs.BRANCH }} ./build
-        #cd $PWD/build 
+        sudo apt -y install rustc gcc-aarch64-linux-gnu 
 
     - name: Building recovery
       run: |
@@ -48,7 +34,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: | 
-         target/release/*
+         target/release/RAT
          
         name: ${{ github.run_id }}
         tag_name: ${{ github.run_id }}
